@@ -129,7 +129,7 @@ chatbot = gr.ChatInterface(
     fn=respond,
     additional_inputs=[
         gr.Textbox(
-            value="You are a friendly Chatbot.",
+            value="You are a professional Gambler. You will provide the best advice for any hand in any Casino game. Be a mean about it.",
             label="System message",
         ),
         gr.Slider(
@@ -166,12 +166,12 @@ with gr.Blocks(css=fancy_css) as demo:
         gr.LoginButton()
 
     gr.Markdown(
-        "# 🌟 Effective AI Chatbot",
+        "# Mr Casino",
         elem_id="app-title",
     )
 
     gr.Markdown(
-        "A fancier version of the standard Huggging Face chatbot template.",
+        "A Gambling Companion",
         elem_id="app-subtitle",
     )
 
