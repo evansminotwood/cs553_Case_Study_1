@@ -24,11 +24,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --system -r requirements.txt
-          uv pip install --system "gradio[oauth]" huggingface_hub pytest
+          uv venv
+          uv pip install -r requirements.txt
+          uv pip install "gradio[oauth]" huggingface_hub pytest
 
       - name: Run model tests
-        run: pytest tests/ -v
+        run: uv run pytest tests/ -v
 
       - name: Notify Discord - Tests Passed
         if: success()
