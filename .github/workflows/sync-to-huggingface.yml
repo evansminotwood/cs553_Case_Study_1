@@ -22,16 +22,33 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          
-          # Clone the HF Spaces repo
-          git clone https://huggingface.co/spaces/${{ secrets.HF_SPACE_USERNAME }}/${{ secrets.HF_SPACE_NAME }} hf-spaces
-          cd hf-spaces
-          
-          # Copy files from our repo (excluding .git and .github)
-          rsync -av --exclude='.git' --exclude='.github' --exclude='__pycache__' --exclude='.venv' --exclude='*.pyc' ../. .
-          
+
+          # Clone the HF Spaces repo OUTSIDE this checkout so the rsync below
+          # can't ever copy the clone into itself (previously this nested
+          # hf-spaces/hf-spaces/hf-spaces/... one level deeper on every run).
+          HF_DIR="${RUNNER_TEMP}/hf-spaces"
+          rm -rf "$HF_DIR"
+          git clone https://huggingface.co/spaces/${{ secrets.HF_SPACE_USERNAME }}/${{ secrets.HF_SPACE_NAME }} "$HF_DIR"
+
+          # Mirror only the files the Space actually needs to run. --delete
+          # also clears out anything stale on the Space side (including the
+          # nested hf-spaces/ garbage from earlier buggy runs).
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='__pycache__' \
+            --exclude='.venv' \
+            --exclude='venv' \
+            --exclude='*.pyc' \
+            --exclude='tests' \
+            --exclude='pytest.ini' \
+            --exclude='*.pdf' \
+            ./ "$HF_DIR"/
+
+          cd "$HF_DIR"
+
           # Add and commit
-          git add .
+          git add -A
           if ! git diff --cached --quiet; then
             git commit -m "Sync from GitHub: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             git push https://oauth2:${HF_TOKEN}@huggingface.co/spaces/${{ secrets.HF_SPACE_USERNAME }}/${{ secrets.HF_SPACE_NAME }}
