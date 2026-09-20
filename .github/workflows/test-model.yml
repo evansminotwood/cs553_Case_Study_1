@@ -29,3 +29,29 @@ jobs:
 
       - name: Run model tests
         run: pytest tests/ -v
+
+      - name: Notify Discord - Tests Passed
+        if: success()
+        uses: tsickert/discord-webhook@v5.3.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          content: |
+            ✅ **Model Tests Passed**
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+            View: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Notify Discord - Tests Failed
+        if: failure()
+        uses: tsickert/discord-webhook@v5.3.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          content: |
+            ❌ **Model Tests Failed**
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+            View: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
