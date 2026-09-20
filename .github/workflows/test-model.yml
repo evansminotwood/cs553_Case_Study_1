@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv venv
+          uv venv --clear
           uv pip install -r requirements.txt
           uv pip install "gradio[oauth]" huggingface_hub pytest
 
